@@ -3,13 +3,16 @@ import re
 
 GEONAMES_DUMP_URL = 'http://download.geonames.org/export/dump/{}.zip'
 
-connection = sqlite3.connect('gazetteer.db')
+connection = sqlite3.connect('./gazetteer.db')
 connection.text_factory = str
 cursor = connection.cursor()
 
+POPULATE = False
 #disabling this, since we will pre-populate the db with US data...
-#cursor.execute("DROP TABLE places")
-#cursor.execute("CREATE TABLE places (name text, latitude real, longitude real, population integer, country_code text)")
+if POPULATE:
+	cursor.execute("DROP TABLE places")
+	cursor.execute("CREATE TABLE places (name text, country text, state text, latitude real, longitude real, population integer, country_code text)")
+
 
 def _import_table(country_code):
 	import urllib, zipfile, csv
@@ -30,15 +33,18 @@ def _import_table(country_code):
 		lat = row[4]
 		lon = row[5]
 		population = row[14]
+		state = row[10]
+		country = row[8]
 
 		#row[1] is the official name and row[3] is a comma-separated list of the alternative names
-		names = row[3].split(',') + [row[1]]
+		names = row[3].split(',') + [ row[1] ]
 
 		for name in names:
-			cursor.execute("INSERT INTO places VALUES (?, ?, ?, ?, ?)", (name, lat, lon, population, country_code))
+			cursor.execute("INSERT INTO places VALUES (?, ?, ?, ?, ?, ?, ?)", (name, country, state, lat, lon, population, country_code))
 
 	#commit changes
 	connection.commit()
+
 
 def _geocode_csv(input_path, output_path, location_column='location'):
 	import csv
@@ -63,40 +69,52 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 		
 	output_file.close()
 			
+
 def geocode_location(location, country_code='US'):
 	#if this is not a valid country code, ignore
 	if not cursor.execute("SELECT * FROM places WHERE country_code = ?", (country_code, )): 	
 		raise ValueError("Invaid country code.")
 
 	location = location.title()
-	#remove weird unicode characters
-	location = re.sub(r'[\u00FF-\UFFFF]', '', location)
+	#remove weird unicode characters (something's not working with this, so disabling for now...)
+	#location = re.sub(r'[\u00FF-\uFFFF]', '', location)
 	#remove punctuation
-	location = re.sub(r'[^\w\s]', '', location)
+	location = re.sub(r'[^,\w\s]', '', location)
 	#remove any remaining whitespace
 	location = location.strip()
-
-	print location
-	print re.match(r'washington', location, re.I)
-	print re.match(r'Dc', location, re.I)
+	
 	#3) Does the location match? 
 	
 	#1) Is this Washington DC?
-	if re.match(r'washington', location, re.I) and re.match(r'\bdc\b', location, re.I):
-		query = "SELECT name, latitude, longitude FROM places where name = Washington DC"
+	if re.findall(r'washington', location, re.I) and re.findall(r'\bdc\b', location, re.I):
+		query = "SELECT name, country, latitude, longitude FROM places WHERE name = 'Washington'"
 
-		return cursor.execute(query)
+		result = cursor.execute(query).fetchone()
+		
+		if result:
+			return result
+
 
 	#2) Is this in the format Name, Country/State/etc
-	#result = cursor.execute(query, (location,)).fetchone()
+	if re.findall(',', location):
+		name, state = location.rsplit(',')
+		name = name.strip()
+		state = state.strip().upper()
+		
+		query = "SELECT name, country, state, latitude, longitude FROM places WHERE name = ? AND state = ? OR country = ? ORDER BY population DESC"
 
-	#3) Does the location match? 
-	
+		result = cursor.execute(query, (name, state, state)).fetchone()
 
-	return 'No Match'
+		if result:
+			return result
+
+
+	#3) Lastly, try just matching the entire location name
+	return cursor.execute("SELECT name, country, state, latitude, longitude FROM places WHERE name = ? ORDER BY population DESC", (location, )).fetchone()
 
 
 if __name__ == '__main__':
 	import sys
-	#_import_table('cities1000')
+	if POPULATE:
+		_import_table('cities1000')
 	print geocode_location(sys.argv[1])

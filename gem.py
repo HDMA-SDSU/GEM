@@ -3,14 +3,14 @@ import re
 
 GEONAMES_DUMP_URL = 'http://download.geonames.org/export/dump/{}.zip'
 
-connection = sqlite3.connect('gazeteer.db')
+connection = sqlite3.connect('gazetteer.db')
 connection.text_factory = str
 cursor = connection.cursor()
 
 #disabling this, since we will pre-populate the db with US data...
 #cursor.execute("DROP TABLE places")
 #cursor.execute("CREATE TABLE places (name text, latitude real, longitude real, population integer, country_code text)")
- 
+
 def _import_table(country_code):
 	import urllib, zipfile, csv
 
@@ -65,7 +65,7 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 			
 def geocode_location(location, country_code='US'):
 	#if this is not a valid country code, ignore
-	if not cursor.execute("SELECT * FROM places WHERE country_code = ?", country_code): 	
+	if not cursor.execute("SELECT * FROM places WHERE country_code = ?", (country_code, )): 	
 		raise ValueError("Invaid country code.")
 
 	location = location.title()
@@ -76,16 +76,19 @@ def geocode_location(location, country_code='US'):
 	#remove any remaining whitespace
 	location = location.strip()
 
+	print location
+	print re.match(r'washington', location, re.I)
+	print re.match(r'Dc', location, re.I)
 	#3) Does the location match? 
 	
 	#1) Is this Washington DC?
 	if re.match(r'washington', location, re.I) and re.match(r'\bdc\b', location, re.I):
-		query = "SELECT name, latitude, longitude FROM places where name = Washington DC" 	
-		
-		return cursor.execut(query)
+		query = "SELECT name, latitude, longitude FROM places where name = Washington DC"
+
+		return cursor.execute(query)
 
 	#2) Is this in the format Name, Country/State/etc
-	result = cursor.execute(query, (location,)).fetchone()
+	#result = cursor.execute(query, (location,)).fetchone()
 
 	#3) Does the location match? 
 	
@@ -95,5 +98,5 @@ def geocode_location(location, country_code='US'):
 
 if __name__ == '__main__':
 	import sys
-
+	#_import_table('cities1000')
 	print geocode_location(sys.argv[1])

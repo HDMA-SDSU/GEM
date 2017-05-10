@@ -51,9 +51,9 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 
 	reader = csv.reader(open(input_path).readlines(), delimiter='\t', quotechar='"')
 	columns = reader.next()
-	location_index = columns.index(location_column)
+	location_index = columns.count(location_column)
 
-	if location_index == -1:
+	if location_index > 0:
 		raise ValueError("Location column is invalid.")
 
 	output_file = open(output_path, 'wb')
@@ -65,12 +65,14 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 
 		result = geocode_location(loc)
 		row_output = row + [ '', '' ] if not result else [ result[1], result [2] ]
-		writer.writeRow(row_output)
+		writer.writerow(row_output)
 		
 	output_file.close()
 			
 
 def geocode_location(location, country_code='US'):
+	''' TODO: State and country fields only using codes right now (eg, CA rather than California)'''
+
 	#if this is not a valid country code, ignore
 	if not cursor.execute("SELECT * FROM places WHERE country_code = ?", (country_code, )): 	
 		raise ValueError("Invaid country code.")
@@ -97,7 +99,7 @@ def geocode_location(location, country_code='US'):
 
 	#2) Is this in the format Name, Country/State/etc
 	if re.findall(',', location):
-		name, state = location.rsplit(',')
+		name, state = location.rsplit(',', 1)
 		name = name.strip()
 		state = state.strip().upper()
 		
@@ -115,6 +117,20 @@ def geocode_location(location, country_code='US'):
 
 if __name__ == '__main__':
 	import sys
-	if POPULATE:
-		_import_table('cities1000')
-	print geocode_location(sys.argv[1])
+	from optparse import OptionParser
+
+	parser = OptionParser()
+	parser.add_option("--in", "--input", dest="input_path")
+	parser.add_option("--loc", "--location", dest="location_column")
+	parser.add_option("--out", "--output", dest="output_path")
+
+	options, args = parser.parse_args()
+
+	input_path = options.input_path
+	output_path = options.output_path
+	location_column = options.location_column
+
+	if input_path and output_path and location_column:
+		_geocode_csv(input_path, output_path, location_column)
+
+	print "Done!"

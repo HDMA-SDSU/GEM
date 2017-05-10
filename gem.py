@@ -101,7 +101,7 @@ def geocode_location(location, country_code='US'):
 		name = name.strip()
 		state = state.strip().upper()
 		
-		query = "SELECT name, country, state, latitude, longitude FROM places WHERE name = ? AND state = ? OR country = ? ORDER BY population DESC"
+		query = "SELECT name, country, state, latitude, longitude FROM places WHERE name = ? AND (state = ? OR country = ?) ORDER BY population DESC"
 
 		result = cursor.execute(query, (name, state, state)).fetchone()
 

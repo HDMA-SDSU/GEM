@@ -49,22 +49,26 @@ def _import_table(country_code):
 def _geocode_csv(input_path, output_path, location_column='location'):
 	import csv
 
-	reader = csv.reader(open(input_path).readlines(), delimiter='\t', quotechar='"')
+	reader = csv.reader(open(input_path).readlines(), delimiter=',', quotechar='"')
 	columns = reader.next()
-	location_index = columns.count(location_column)
 
-	if location_index > 0:
+	if columns.count(location_column) == 0:
 		raise ValueError("Location column is invalid.")
 
+	location_index = columns.count(location_column)
+
 	output_file = open(output_path, 'wb')
-	writer = csv.writer(output_file, delimiter='\t', quotechar='"')
+	writer = csv.writer(output_file, delimiter=',', quotechar='"')
 	writer.writerow(columns + [ 'code_longitude', 'code_latitude' ])
 
 	for row in reader:
+		print row
 		loc = row[location_index]
 
 		result = geocode_location(loc)
-		row_output = row + [ '', '' ] if not result else [ result[1], result [2] ]
+		print result
+		row_output = row + ([ '', '' ] if not result else [ result[4], result [3] ])
+		print row_output
 		writer.writerow(row_output)
 		
 	output_file.close()

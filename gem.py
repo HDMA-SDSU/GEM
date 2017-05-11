@@ -77,7 +77,7 @@ def geocode_location(location, country_code='US'):
 	''' TODO: State and country fields only using codes right now (eg, CA rather than California)'''
 
 	#if this is not a valid country code, ignore
-	if not cursor.execute("SELECT * FROM places WHERE country_code = ?", (country_code, )): 	
+	if not cursor.execute("SELECT * FROM places WHERE country_code = ?", (country_code, )).fetchone():
 		raise ValueError("Invaid country code.")
 
 	location = location.title()

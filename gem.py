@@ -35,7 +35,9 @@ def _import_table(country_code):
 		lat = row[4]
 		lon = row[5]
 		population = row[14]
-		state = row[10] country = row[8] 
+		state = row[10] 
+		country = row[8] 
+		
 		#row[1] is the official name and row[3] is a comma-separated list of the alternative names
 		names = row[3].split(',') + [ row[1] ]
 
@@ -62,13 +64,10 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 	writer.writerow(columns + [ 'code_longitude', 'code_latitude' ])
 
 	for row in reader:
-		print row
 		loc = row[location_index]
 
 		result = geocode_location(loc)
-		print result
 		row_output = row + ([ '', '' ] if not result else [ result[4], result [3] ])
-		print row_output
 		writer.writerow(row_output)
 		
 	output_file.close()
@@ -88,8 +87,6 @@ def geocode_location(location, country_code='US'):
 	location = re.sub(r'[^,\w\s]', '', location)
 	#remove any remaining whitespace
 	location = location.strip()
-	
-	#3) Does the location match? 
 	
 	#1) Is this Washington DC?
 	if re.findall(r'washington', location, re.I) and re.findall(r'\bdc\b', location, re.I):
@@ -134,7 +131,7 @@ if __name__ == '__main__':
 	output_path = options.output_path
 	location_column = options.location_column
 
-	if input_path and output_path and location_column:
+	if input_path and output_path:  
 		_geocode_csv(input_path, output_path, location_column)
 
 	print "Done!"

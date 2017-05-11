@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sqlite3
 import re
 
@@ -33,9 +35,7 @@ def _import_table(country_code):
 		lat = row[4]
 		lon = row[5]
 		population = row[14]
-		state = row[10]
-		country = row[8]
-
+		state = row[10] country = row[8] 
 		#row[1] is the official name and row[3] is a comma-separated list of the alternative names
 		names = row[3].split(',') + [ row[1] ]
 

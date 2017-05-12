@@ -27,10 +27,10 @@ def _import_table(country_code):
 	file_stream = zipped.open("{}.txt".format(country_code))
 	text = file_stream.read()
 
-	#parse with csv.reader
+	##parse with csv.reader
 	reader = csv.reader(text.splitlines(), delimiter='\t', quotechar="'")
 
-	#go through each row
+	##go through each row
 	for row in reader:
 		lat = row[4]
 		lon = row[5]
@@ -44,7 +44,7 @@ def _import_table(country_code):
 		for name in names:
 			cursor.execute("INSERT INTO places VALUES (?, ?, ?, ?, ?, ?, ?)", (name, country, state, lat, lon, population, country_code))
 
-	#commit changes
+	##commit changes
 	connection.commit()
 
 
@@ -72,13 +72,9 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 		
 	output_file.close()
 			
-
-def geocode_location(location, country_code='US'):
+			
+def geocode_location(location):
 	''' TODO: State and country fields only using codes right now (eg, CA rather than California)'''
-
-	#if this is not a valid country code, ignore
-	if not cursor.execute("SELECT * FROM places WHERE country_code = ?", (country_code, )).fetchone():
-		raise ValueError("Invaid country code.")
 
 	location = location.title()
 	#remove weird unicode characters (something's not working with this, so disabling for now...)
@@ -120,7 +116,7 @@ if __name__ == '__main__':
 	import sys
 	from optparse import OptionParser
 
-	parser = OptionParser()
+	parser = OptionParser(usage="Usage: %prog [options] arg1 arg2")
 	parser.add_option("--in", "--input", dest="input_path")
 	parser.add_option("--loc", "--location", dest="location_column")
 	parser.add_option("--out", "--output", dest="output_path")
@@ -129,7 +125,7 @@ if __name__ == '__main__':
 
 	input_path = options.input_path
 	output_path = options.output_path
-	location_column = options.location_column
+	location_column = options.location_column or 'location'
 
 	if input_path and output_path:  
 		_geocode_csv(input_path, output_path, location_column)

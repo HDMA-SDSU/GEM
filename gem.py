@@ -61,13 +61,17 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 
 	output_file = open(output_path, 'wb')
 	writer = csv.writer(output_file, delimiter=',', quotechar='"')
-	writer.writerow(columns + [ 'code_longitude', 'code_latitude' ])
+	writer.writerow(columns + [ 'code_placename', 'code_longitude', 'code_latitude' ])
 
 	for row in reader:
 		loc = row[location_index]
 
 		result = geocode_location(loc)
-		row_output = row + ([ '', '' ] if not result else [ result[4], result [3] ])
+		longitude = result[4]
+		latitude = result[3]
+		placename = "{}, {}, {}".format(result[0], result[2], result[1])
+
+		row_output = row + ([ '', '', '' ] if not result else [ placename, longitude, latitude ])
 		writer.writerow(row_output)
 		
 	output_file.close()

@@ -4,8 +4,9 @@ import sqlite3
 import re
 
 GEONAMES_DUMP_URL = 'http://download.geonames.org/export/dump/{}.zip'
+GAZETTEER_PATH = './gazetteer.db'
 
-connection = sqlite3.connect('./gazetteer.db')
+connection = sqlite3.connect(GAZETTEER_PATH)
 connection.text_factory = str
 cursor = connection.cursor()
 
@@ -35,9 +36,9 @@ def _import_table(country_code):
 		lat = row[4]
 		lon = row[5]
 		population = row[14]
-		state = row[10] 
-		country = row[8] 
-		
+		state = row[10]
+		country = row[8]
+
 		#row[1] is the official name and row[3] is a comma-separated list of the alternative names
 		names = row[3].split(',') + [ row[1] ]
 
@@ -73,10 +74,10 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 
 		row_output = row + ([ '', '', '' ] if not result else [ placename, longitude, latitude ])
 		writer.writerow(row_output)
-		
+
 	output_file.close()
-			
-			
+
+
 def geocode_location(location):
 	''' TODO: State and country fields only using codes right now (eg, CA rather than California)'''
 
@@ -87,13 +88,13 @@ def geocode_location(location):
 	location = re.sub(r'[^,\w\s]', '', location)
 	#remove any remaining whitespace
 	location = location.strip()
-	
+
 	#1) Is this Washington DC?
 	if re.findall(r'washington', location, re.I) and re.findall(r'\bdc\b', location, re.I):
 		query = "SELECT name, country, latitude, longitude FROM places WHERE name = 'Washington'"
 
 		result = cursor.execute(query).fetchone()
-		
+
 		if result:
 			return result
 
@@ -103,7 +104,7 @@ def geocode_location(location):
 		name, state = location.rsplit(',', 1)
 		name = name.strip()
 		state = state.strip().upper()
-		
+
 		query = "SELECT name, country, state, latitude, longitude FROM places WHERE name = ? AND (state = ? OR country = ?) ORDER BY population DESC"
 
 		result = cursor.execute(query, (name, state, state)).fetchone()
@@ -131,7 +132,8 @@ if __name__ == '__main__':
 	output_path = options.output_path
 	location_column = options.location_column or 'location'
 
-	if input_path and output_path:  
+	if input_path and output_path:
 		_geocode_csv(input_path, output_path, location_column)
 
 	print "Done!"
+

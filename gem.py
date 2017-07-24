@@ -41,7 +41,7 @@ def _import_table(country_code, reset=False):
         population = row[14]
 
         # row[1] is official name and row[3] is a list of the alternative names
-        names = row[3].split(',') + [ row[1] ]
+        names = row[3].split(',') + [row[1]]
 
         for name in names:
             cursor.execute("INSERT INTO places VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -68,19 +68,19 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 
     output_file = open(output_path, 'wb')
     writer = csv.writer(output_file, delimiter=',', quotechar='"')
-    writer.writerow(columns + [ 'code_placename', 'code_longitude', 'code_latitude' ])
+    writer.writerow(columns + ['code_placename', 'code_longitude', 'code_latitude'])
 
     for row in reader:
         loc = row[location_index]
 
         result = geocode_location(loc)
 
-        placename = "{}, {}, {}".format(result[0], result[1], result[2])
+        placename = "{}, {}, {}".format(*result[:3])
 
         longitude = result[4]
         latitude = result[3]
 
-        row_output = row + ([ '', '', '' ] if not result else [ placename, longitude, latitude ])
+        row_output = row + ([] * 3 if not result else [placename, longitude, latitude])
         writer.writerow(row_output)
 
     output_file.close()
@@ -96,7 +96,7 @@ def geocode_location(location):
     query_template = "SELECT name, state, country, latitude, longitude FROM PLACES WHERE {}"
 
     location = location.title()
-    # remove weird unicode characters (something's not working with this, so disabling for now...)
+    # remove weird unicode characters 
     location = location.encode('ascii', 'ignore')
     # remove punctuation
     location = re.sub(r'[^,\w\s]', '', location)

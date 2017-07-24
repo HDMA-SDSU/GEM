@@ -11,15 +11,15 @@ connection.text_factory = str
 cursor = connection.cursor()
 
 def _import_table(country_code, reset=False):
-    """Import a GeoNames table based on the country code.
-    """
+    """Import a GeoNames table based on the country code.  """
+
     import urllib, zipfile, csv
 
     if reset:
         cursor.execute("DROP TABLE places")
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS places (name text, country text, state text, 
-                   latitude real, longitude real, population integer, country_code text)""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS places (name text, country text, state text,
+            latitude real, longitude real, population integer, country_code text)""")
 
     # first, grab the file from geonames
     filehandle, _ = urllib.urlretrieve(GEONAMES_DUMP_URL.format(country_code))
@@ -52,8 +52,8 @@ def _import_table(country_code, reset=False):
 
 
 def _geocode_csv(input_path, output_path, location_column='location'):
-    """Geocode each row in the input and output the geocoded information.
-    """
+    """Geocode each row in the input and output the geocoded information. """
+
     import csv
 
     reader = csv.reader(open(input_path).readlines(),
@@ -93,9 +93,11 @@ def geocode_location(location):
     TODO: State and country fields only using codes right now (eg, CA rather than California)
     """
 
-    query_template = "SELECT name, state, country, latitude, longitude " + \
-            "FROM PLACES WHERE {} ORDER BY population DESC"
+    query_template = """SELECT name, state, country, latitude, longitude
+            FROM PLACES WHERE {} ORDER BY population DESC"""
 
+    test = """hey this is a 
+        jkkkstring where"""
     location = location.title()
     # remove weird unicode characters 
     location = location.encode('ascii', 'ignore')
@@ -137,11 +139,12 @@ if __name__ == '__main__':
     import sys
     from optparse import OptionParser
 
-    parser = OptionParser(usage="Usage: %prog [options] arg1 arg2")
-    parser.add_option("--in", "--input", dest="input_path")
-    parser.add_option("--loc", "--location", dest="location_column")
-    parser.add_option("--out", "--output", dest="output_path")
-
+    parser = OptionParser(usage="Usage: %prog")
+    parser.add_option("--in", "--input", dest="input_path", help="Input file path.")
+    parser.add_option("--out", "--output", dest="output_path", help="Output file path.")
+    parser.add_option("--loc", "--location", dest="location_column", 
+            help="Name of location column.")
+    
     options, args = parser.parse_args()
     input_path = options.input_path
     output_path = options.output_path
@@ -149,5 +152,7 @@ if __name__ == '__main__':
 
     if input_path and output_path:
         _geocode_csv(input_path, output_path, location_column)
+    else:
+        parser.error("Need at least input and ouput paths. Use --h flag for options.")
 
     print "Done!"

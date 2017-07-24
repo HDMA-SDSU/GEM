@@ -1,3 +1,5 @@
+# Geocoding Engine Machine (GEM) 
+### developed by Chris Allen, the Center for Human Dynamics in the Mobile Age, San Diego State University.
 ## Synopsis
 
 The geocoding engine machine (GEM) is a python library and command-line tool that can be used to geocode text-based location descriptions.  

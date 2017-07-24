@@ -143,7 +143,7 @@ if __name__ == '__main__':
     parser.add_option("--in", "--input", dest="input_path", help="Input file path.")
     parser.add_option("--out", "--output", dest="output_path", help="Output file path.")
     parser.add_option("--loc", "--location", dest="location_column", 
-            help="Name of location column.")
+            help="Name of location column (will default to 'location'.")
     
     options, args = parser.parse_args()
     input_path = options.input_path
@@ -155,4 +155,4 @@ if __name__ == '__main__':
     else:
         parser.error("Need at least input and ouput paths. Use --h flag for options.")
 
-    print "Done!"
+    print "Geocoding complete!  Ouput file stored at {}".format(output_path)

@@ -93,7 +93,8 @@ def geocode_location(location):
     TODO: State and country fields only using codes right now (eg, CA rather than California)
     """
 
-    query_template = "SELECT name, state, country, latitude, longitude FROM PLACES WHERE {}"
+    query_template = "SELECT name, state, country, latitude, longitude " + \
+            "FROM PLACES WHERE {} ORDER BY population DESC"
 
     location = location.title()
     # remove weird unicode characters 
@@ -105,7 +106,7 @@ def geocode_location(location):
 
     # 1) Is this Washington DC?
     if re.findall(r'washington', location, re.I) and re.findall(r'\bdc\b', location, re.I):
-        where = "name = 'Washington' ORDER BY population DESC"
+        where = "name = 'Washington'"
 
         result = cursor.execute(query_template.format(where)).fetchone()
 
@@ -119,7 +120,7 @@ def geocode_location(location):
         name = name.strip()
         state = state.strip().upper()
 
-        where = "name = ? AND (state = ? OR country = ?) ORDER BY population DESC"
+        where = "name = ? AND (state = ? OR country = ?)"
 
         result = cursor.execute(query_template.format(where), (name, state, state)).fetchone()
 
@@ -128,7 +129,7 @@ def geocode_location(location):
 
 
     # 3) Lastly, try just matching the entire location name
-    where = "name = ? ORDER BY population DESC"
+    where = "name = ?"
     return cursor.execute(query_template.format(where), (location, )).fetchone()
 
 

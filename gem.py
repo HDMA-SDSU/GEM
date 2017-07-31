@@ -2,9 +2,10 @@
 
 import sqlite3
 import re
+import os
 
 GEONAMES_DUMP_URL = 'http://download.geonames.org/export/dump/{}.zip'
-GAZETTEER_PATH = './gazetteer.db'
+GAZETTEER_PATH = os.path.join(os.path.dirname(__file__), 'gazetteer.db')
 
 connection = sqlite3.connect(GAZETTEER_PATH)
 connection.text_factory = str

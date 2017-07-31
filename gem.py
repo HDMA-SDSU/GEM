@@ -11,7 +11,7 @@ connection.text_factory = str
 cursor = connection.cursor()
 
 def _import_table(country_code, reset=False):
-    """Import a GeoNames table based on the country code.  """
+    """Import a GeoNames table based on the country code."""
 
     import urllib, zipfile, csv
 
@@ -52,7 +52,7 @@ def _import_table(country_code, reset=False):
 
 
 def _geocode_csv(input_path, output_path, location_column='location'):
-    """Geocode each row in the input and output the geocoded information. """
+    """Geocode each row in the input and output the geocoded information."""
 
     import csv
 
@@ -94,10 +94,8 @@ def geocode_location(location):
     """
 
     query_template = """SELECT name, state, country, latitude, longitude
-            FROM PLACES WHERE {} ORDER BY population DESC"""
+            FROM places WHERE {} ORDER BY population DESC"""
 
-    test = """hey this is a 
-        jkkkstring where"""
     location = location.title()
     # remove weird unicode characters 
     location = location.encode('ascii', 'ignore')

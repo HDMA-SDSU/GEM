@@ -28,7 +28,7 @@ python gem.py --in test.csv --out test-out.csv
 
 ## Installation
 
-To install, simply clone or download the GEM zip file, unzip it, and run the following command in administrative mode:
+To install, simply clone or download the GEM zip file and unzip it.  Navigate to the unzipped folder (where setup.py lives) and run the following command in administrative mode:
 
 ~~~~
 python setup.py install

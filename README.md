@@ -28,4 +28,9 @@ python gem.py --in test.csv --out test-out.csv
 
 ## Installation
 
-To install, simply clone the GEM repository to a directory that is in the PYTHONPATH.
+To install, simply clone or download the GEM zip file, unzip it, and run the following command in administrative mode:
+
+~~~~
+python setup.py install
+~~~~
+

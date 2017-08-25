@@ -6,6 +6,8 @@ The geocoding engine machine (GEM) is a python library and command-line tool tha
 
 Note: The placename database is pre-loaded with US and major international cities.  The results will be ordered by population, so a query for "Paris" will return "Paris, France" rather than "Paris, Texas" (unless a country or state is specified).
 
+Note: GEM is currently only compatible with __Python 2.\*__
+
 ## Usage
 
 GEM can be run as a Python package or through a command-line interface (CLI).  
@@ -40,7 +42,7 @@ To install, simply clone or download the GEM zip file and unzip it.  Navigate to
 python setup.py install
 ~~~~
 
-Note that in most cases, running the setup.py file will require administrative priviledges.  On Windows, this requires opening the terminal as an administrator.  On \*nix systems (including MacOS), this requires using the "sudo" command:
+Note that in most cases, running the setup.py file will require administrative priviledges.  On Windows, this requires opening the terminal as an administrator.  On \*nix systems (including MacOS), this requires using the "sudo command:
 
 ~~~~
 sudo python setup.py install

@@ -110,7 +110,6 @@ def _import_table(country_code, reset=False):
 def _geocode_csv(input_path, output_path, location_column='location'):
     """Geocode each row in the input and output the geocoded information."""
 
-    print location_column
     import csv
 
     reader = csv.reader(open(input_path).readlines(),

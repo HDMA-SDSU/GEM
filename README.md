@@ -42,7 +42,7 @@ To install, simply clone or download the GEM zip file and unzip it.  Navigate to
 python setup.py install
 ~~~~
 
-Note that in most cases, running the setup.py file will require administrative privileges.  On Windows, this requires opening the terminal as an administrator.  On \*nix systems (including MacOS), this requires using the "sudo command:
+Note that in most cases, running the setup.py file will require administrative privileges.  On Windows, this requires opening the terminal as an administrator.  On \*nix systems (including MacOS), this requires using the "sudo" command:
 
 ~~~~
 sudo python setup.py install

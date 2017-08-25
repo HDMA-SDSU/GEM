@@ -7,9 +7,64 @@ import os
 GEONAMES_DUMP_URL = 'http://download.geonames.org/export/dump/{}.zip'
 GAZETTEER_PATH = os.path.join(os.path.dirname(__file__), 'gazetteer.db')
 
+# Mapping of state full-names (eg, 'California') to abbreviations (eg, 'CA')
+STATE_FULL_TO_ABBR = {
+    'ALABAMA': 'AL',
+    'ALASKA': 'AK',
+    'ARIZONA': 'AZ',
+    'ARKANSAS': 'AR',
+    'CALIFORNIA': 'CA',
+    'COLORADO': 'CO',
+    'CONNECTICUT': 'CT',
+    'DELAWARE': 'DE',
+    'FLORIDA': 'FL',
+    'GEORGIA': 'GA',
+    'HAWAII': 'HI',
+    'IDAHO': 'ID',
+    'ILLINOIS': 'IL',
+    'INDIANA': 'IN',
+    'IOWA': 'IA',
+    'KANSAS': 'KS',
+    'KENTUCKY': 'KY',
+    'LOUISIANA': 'LA',
+    'MAINE': 'ME',
+    'MARYLAND': 'MD',
+    'MASSACHUSETTS': 'MA',
+    'MICHIGAN': 'MI',
+    'MINNESOTA': 'MN',
+    'MISSISSIPPI': 'MS',
+    'MISSOURI': 'MO',
+    'MONTANA': 'MT',
+    'NEBRASKA': 'NE',
+    'NEVADA': 'NV',
+    'NEW HAMPSHIRE': 'NH',
+    'NEW JERSEY': 'NJ',
+    'NEW MEXICO': 'NM',
+    'NEW YORK': 'NY',
+    'NORTH CAROLINA': 'NC',
+    'NORTH DAKOTA': 'ND',
+    'OHIO': 'OH',
+    'OKLAHOMA': 'OK',
+    'OREGON': 'OR',
+    'PENNSYLVANIA': 'PA',
+    'RHODE ISLAND': 'RI',
+    'SOUTH CAROLINA': 'SC',
+    'SOUTH DAKOTA': 'SD',
+    'TENNESSEE': 'TN',
+    'TEXAS': 'TX',
+    'UTAH': 'UT',
+    'VERMONT': 'VT',
+    'VIRGINIA': 'VA',
+    'WASHINGTON': 'WA',
+    'WEST VIRGINIA': 'WV',
+    'WISCONSIN': 'WI',
+    'WYOMING': 'WY'
+}
+        
 connection = sqlite3.connect(GAZETTEER_PATH)
 connection.text_factory = str
 cursor = connection.cursor()
+
 
 def _import_table(country_code, reset=False):
     """Import a GeoNames table based on the country code."""
@@ -88,10 +143,8 @@ def _geocode_csv(input_path, output_path, location_column='location'):
 
 
 def geocode_location(location):
-    """Return a place name, state, country, latitude, and longitude for the given location
-    string.
-
-    TODO: State and country fields only using codes right now (eg, CA rather than California)
+    """Return a place name, state, country, latitude, and longitude for the 
+    given location string.
     """
 
     query_template = """SELECT name, state, country, latitude, longitude
@@ -115,21 +168,25 @@ def geocode_location(location):
             return result
 
 
-    # 2) Is this in the format Name, Country/State/etc
+    # 2) Is this in the format "Name, Country/State/etc"
     if ',' in location:
         name, state = location.rsplit(',', 1)
         name = name.strip()
         state = state.strip().upper()
 
-        where = "name = ? AND (state = ? OR country = ?)"
+        if len(state) > 2:
+            state = STATE_FULL_TO_ABBR.get(state, '')
 
-        result = cursor.execute(query_template.format(where), (name, state, state)).fetchone()
+        if state:
+            where = "name = ? AND (state = ? OR country = ?)"
 
-        if result:
-            return result
+            result = cursor.execute(query_template.format(where), (name, state, state)).fetchone()
+
+            if result:
+                return result
 
 
-    # 3) Lastly, try just matching the entire location name
+    # 3) Last, try just matching the entire location name
     where = "name = ?"
     return cursor.execute(query_template.format(where), (location, )).fetchone()
 

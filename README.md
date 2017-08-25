@@ -28,7 +28,7 @@ To use as a CLI, run gem.py with the input and output file paths (note: use the 
 python gem.py --in test.csv --out test-out.csv
 ~~~~
 
-By default, GEM will assume the location column is called "location," but it's possible to specify a different location column by using the "--location" flag:
+The only column that GEM requires for an inpute file is a location name column.  By default, GEM will assume the location column is called "location," but it's possible to specify a different location column by using the "--location" flag:
 
 ~~~~
 python gem.py --in example.csv --out example-out.csv --location "loc"
@@ -42,7 +42,7 @@ To install, simply clone or download the GEM zip file and unzip it.  Navigate to
 python setup.py install
 ~~~~
 
-Note that in most cases, running the setup.py file will require administrative priviledges.  On Windows, this requires opening the terminal as an administrator.  On \*nix systems (including MacOS), this requires using the "sudo command:
+Note that in most cases, running the setup.py file will require administrative privileges.  On Windows, this requires opening the terminal as an administrator.  On \*nix systems (including MacOS), this requires using the "sudo command:
 
 ~~~~
 sudo python setup.py install
